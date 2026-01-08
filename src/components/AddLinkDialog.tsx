@@ -1,17 +1,26 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Instagram, Youtube, Twitter, Globe, Mail, Phone, MessageCircle, Music, X } from "lucide-react";
 import { useLinks } from "@/hooks/useLinks";
 import { toast } from "sonner";
 
-const emojiOptions = ["🔗", "🌐", "📱", "💼", "🎵", "📸", "🎥", "📧", "💬", "🛒", "📝", "🎮"];
+const iconOptions = [
+  { icon: Instagram, name: "instagram" },
+  { icon: Youtube, name: "youtube" },
+  { icon: Twitter, name: "twitter" },
+  { icon: Globe, name: "globe" },
+  { icon: Mail, name: "mail" },
+  { icon: Phone, name: "phone" },
+  { icon: MessageCircle, name: "message" },
+  { icon: Music, name: "music" },
+];
 
 export function AddLinkDialog() {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
-  const [icon, setIcon] = useState("🔗");
+  const [selectedIcon, setSelectedIcon] = useState("globe");
   const { addLink } = useLinks();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,11 +37,11 @@ export function AddLinkDialog() {
     }
 
     try {
-      await addLink.mutateAsync({ title: title.trim(), url: formattedUrl, icon });
+      await addLink.mutateAsync({ title: title.trim(), url: formattedUrl, icon: selectedIcon });
       toast.success("تمت إضافة الرابط بنجاح!");
       setTitle("");
       setUrl("");
-      setIcon("🔗");
+      setSelectedIcon("globe");
       setOpen(false);
     } catch {
       toast.error("حدث خطأ أثناء إضافة الرابط");
@@ -42,67 +51,77 @@ export function AddLinkDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gradient-bg text-primary-foreground rounded-full px-8 py-6 text-lg">
-          <Plus className="w-5 h-5 ml-2" />
-          إضافة رابط جديد
+        <Button className="bg-gradient-to-l from-cyan-500 to-emerald-500 hover:opacity-90 text-white rounded-xl px-6 py-6 text-base gap-2">
+          <Plus className="w-5 h-5" />
+          إضافة رابط
         </Button>
       </DialogTrigger>
-      <DialogContent className="glass-card border-border sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-2xl text-right">إضافة رابط جديد</DialogTitle>
+      <DialogContent className="bg-slate-900/95 backdrop-blur-xl border-white/10 sm:max-w-md" dir="rtl">
+        <DialogHeader className="relative">
+          <DialogTitle className="text-2xl text-white text-right">إضافة رابط جديد</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6 mt-4">
           <div>
-            <label className="block text-sm font-medium mb-2">اختر أيقونة</label>
-            <div className="flex flex-wrap gap-2">
-              {emojiOptions.map((emoji) => (
+            <label className="block text-sm font-medium text-white/80 mb-2 text-right">عنوان الرابط</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="مثال: Instagram"
+              className="w-full px-4 py-3 rounded-xl border-2 border-purple-500/50 bg-slate-800/50 text-white placeholder-white/40 focus:outline-none focus:border-purple-400 transition-all text-right"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-white/80 mb-2 text-right">رابط URL</label>
+            <input
+              type="text"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://..."
+              className="w-full px-4 py-3 rounded-xl border border-white/20 bg-slate-800/50 text-white placeholder-white/40 focus:outline-none focus:border-white/40 transition-all"
+              dir="ltr"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-white/80 mb-3 text-right">اختر أيقونة</label>
+            <div className="flex flex-wrap gap-2 justify-end">
+              {iconOptions.map(({ icon: Icon, name }) => (
                 <button
-                  key={emoji}
+                  key={name}
                   type="button"
-                  onClick={() => setIcon(emoji)}
-                  className={`text-2xl p-2 rounded-lg transition-all ${
-                    icon === emoji
-                      ? "bg-primary/20 ring-2 ring-primary"
-                      : "hover:bg-white/10"
+                  onClick={() => setSelectedIcon(name)}
+                  className={`p-3 rounded-xl transition-all ${
+                    selectedIcon === name
+                      ? "bg-white/20 ring-2 ring-white/50"
+                      : "bg-slate-800/50 hover:bg-white/10"
                   }`}
                 >
-                  {emoji}
+                  <Icon className="w-5 h-5 text-white" />
                 </button>
               ))}
             </div>
           </div>
           
-          <div>
-            <label className="block text-sm font-medium mb-2">عنوان الرابط</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="مثال: حسابي على تويتر"
-              className="input-glass"
-            />
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="ghost"
+              className="flex-1 text-white hover:bg-white/10 rounded-xl py-6"
+              onClick={() => setOpen(false)}
+            >
+              إلغاء
+            </Button>
+            <Button
+              type="submit"
+              className="flex-[2] bg-gradient-to-l from-purple-500 via-pink-500 to-cyan-400 hover:opacity-90 text-white rounded-xl py-6 font-semibold"
+              disabled={addLink.isPending}
+            >
+              {addLink.isPending ? "جاري الإضافة..." : "حفظ"}
+            </Button>
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium mb-2">رابط URL</label>
-            <input
-              type="text"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com"
-              className="input-glass"
-              dir="ltr"
-            />
-          </div>
-          
-          <Button
-            type="submit"
-            className="w-full gradient-bg text-primary-foreground rounded-full py-6"
-            disabled={addLink.isPending}
-          >
-            {addLink.isPending ? "جاري الإضافة..." : "إضافة الرابط"}
-          </Button>
         </form>
       </DialogContent>
     </Dialog>
