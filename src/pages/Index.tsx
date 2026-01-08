@@ -1,31 +1,50 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Link2, BarChart3, Palette, Sparkles } from "lucide-react";
+import { ArrowLeft, Link2, BarChart3, QrCode, Sparkles, Instagram, Youtube, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
 const themes = [
-  { name: "نيون بنفسجي", gradient: "from-purple-600 via-blue-500 to-cyan-400" },
-  { name: "داكن", gradient: "from-gray-900 via-gray-800 to-gray-900" },
-  { name: "سيان نيون", gradient: "from-black via-cyan-900 to-cyan-400" },
-  { name: "غروب", gradient: "from-pink-500 via-orange-400 to-yellow-300" },
+  { 
+    name: "تدرج نيون", 
+    bg: "bg-gradient-to-b from-violet-500 via-purple-500 to-cyan-400",
+    cards: "bg-purple-400/30"
+  },
+  { 
+    name: "داكن", 
+    bg: "bg-gray-900",
+    cards: "bg-gray-800"
+  },
+  { 
+    name: "نيون سيان", 
+    bg: "bg-gradient-to-b from-slate-800 to-teal-900",
+    cards: "bg-slate-700/50"
+  },
+  { 
+    name: "غروب الشمس", 
+    bg: "bg-gradient-to-b from-orange-400 via-pink-400 to-yellow-300",
+    cards: "bg-orange-300/50"
+  },
 ];
 
 const features = [
   {
-    icon: "🔗",
+    icon: Link2,
     title: "روابط غير محدودة",
-    description: "أضف جميع روابطك في مكان واحد وشاركها بسهولة",
+    description: "أضف عدد لا نهائي من الروابط لصفحتك الشخصية",
+    color: "from-purple-500 to-pink-500"
   },
   {
-    icon: "📊",
-    title: "تتبع النقرات",
-    description: "اعرف كم مرة تم النقر على كل رابط",
+    icon: BarChart3,
+    title: "تحليلات متقدمة",
+    description: "تتبع عدد الضغطات والزوار لكل رابط",
+    color: "from-cyan-500 to-blue-500"
   },
   {
-    icon: "🎨",
-    title: "ثيمات متعددة",
-    description: "اختر من بين ثيمات نيون جذابة تناسب أسلوبك",
+    icon: QrCode,
+    title: "QR Code + PDF",
+    description: "حمّل كود QR وبطاقة PDF لمشاركتها بسهولة",
+    color: "from-violet-500 to-purple-500"
   },
 ];
 
@@ -33,31 +52,36 @@ const Index = () => {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-cyan-900" dir="rtl">
+    <div className="min-h-screen" dir="rtl">
+      {/* Background Gradient */}
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500 -z-10" />
+      
       {/* Header */}
-      <header className="fixed top-0 right-0 left-0 z-50 backdrop-blur-lg bg-black/20 border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <header className="fixed top-0 right-0 left-0 z-50">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Link2 className="w-8 h-8 text-cyan-400" />
+            <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+              <Link2 className="w-5 h-5 text-white" />
+            </div>
             <span className="text-2xl font-bold text-white">Link.iq</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {user ? (
               <Link to="/dashboard">
-                <Button className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:opacity-90 text-white border-0">
+                <Button className="bg-white text-purple-600 hover:bg-white/90 rounded-full px-6 font-semibold">
                   لوحة التحكم
                 </Button>
               </Link>
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant="ghost" className="text-white hover:bg-white/10">
+                  <Button variant="ghost" className="text-white hover:bg-white/10 rounded-full px-6">
                     تسجيل الدخول
                   </Button>
                 </Link>
                 <Link to="/auth">
-                  <Button className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:opacity-90 text-white border-0">
-                    ابدأ مجاناً
+                  <Button className="bg-white text-purple-600 hover:bg-white/90 rounded-full px-6 font-semibold border-2 border-white">
+                    إنشاء حساب
                   </Button>
                 </Link>
               </>
@@ -68,81 +92,99 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center px-6 pt-20">
-        <div className="max-w-6xl mx-auto text-center">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          {/* Phone Mockup - Left Side */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="order-2 lg:order-1 flex justify-center"
+          >
+            <div className="relative">
+              {/* Glow Effect */}
+              <div className="absolute inset-0 bg-purple-500/30 rounded-[2rem] blur-3xl scale-90" />
+              
+              {/* Phone Card */}
+              <div className="relative bg-slate-900/80 backdrop-blur-xl rounded-[2rem] p-6 w-80 border border-white/10 shadow-2xl">
+                {/* Profile Section */}
+                <div className="flex flex-col items-center text-center mb-6">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-pink-400 to-pink-500 mb-4 flex items-center justify-center text-4xl font-bold text-white">
+                    ع
+                  </div>
+                  <h3 className="text-white font-bold text-xl">علي العراقي</h3>
+                  <p className="text-white/50 text-sm">@ali_iq</p>
+                </div>
+                
+                {/* Links */}
+                <div className="space-y-3">
+                  <div className="bg-slate-800/80 backdrop-blur-sm border border-white/10 rounded-xl py-3 px-4 flex items-center justify-between group hover:bg-slate-700/80 transition-all cursor-pointer">
+                    <ArrowLeft className="w-4 h-4 text-white/50" />
+                    <div className="flex items-center gap-3">
+                      <span className="text-white font-medium">Instagram</span>
+                      <Instagram className="w-5 h-5 text-white" />
+                    </div>
+                  </div>
+                  <div className="bg-slate-800/80 backdrop-blur-sm border border-white/10 rounded-xl py-3 px-4 flex items-center justify-between group hover:bg-slate-700/80 transition-all cursor-pointer">
+                    <ArrowLeft className="w-4 h-4 text-white/50" />
+                    <div className="flex items-center gap-3">
+                      <span className="text-white font-medium">YouTube</span>
+                      <Youtube className="w-5 h-5 text-white" />
+                    </div>
+                  </div>
+                  <div className="bg-slate-800/80 backdrop-blur-sm border border-white/10 rounded-xl py-3 px-4 flex items-center justify-between group hover:bg-slate-700/80 transition-all cursor-pointer">
+                    <ArrowLeft className="w-4 h-4 text-white/50" />
+                    <div className="flex items-center gap-3">
+                      <span className="text-white font-medium">واتساب</span>
+                      <MessageCircle className="w-5 h-5 text-white" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Text Content - Right Side */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            className="order-1 lg:order-2 text-right"
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-8">
+              <span className="text-white/90 text-sm font-medium">بديل عربي لـ Linktree</span>
               <Sparkles className="w-4 h-4 text-yellow-400" />
-              <span className="text-white/80 text-sm">منصة عربية 100%</span>
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-              جميع روابطك في
-              <span className="block bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                مكان واحد
+              رابط واحد
+              <span className="block bg-gradient-to-l from-yellow-300 via-yellow-400 to-amber-400 bg-clip-text text-transparent">
+                لكل شيء
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-white/70 mb-10 max-w-2xl mx-auto">
-              أنشئ صفحتك الشخصية وشارك جميع روابطك مع متابعيك بسهولة تامة
+            <p className="text-xl md:text-2xl text-white/80 mb-10 max-w-xl">
+              اجمع كل روابطك في صفحة واحدة جميلة وشاركها مع العالم
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <Link to="/auth">
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:opacity-90 text-white text-lg px-8 py-6 rounded-full shadow-lg shadow-purple-500/25"
+                  className="bg-white text-purple-600 hover:bg-white/90 text-lg px-8 py-6 rounded-full font-bold shadow-lg"
                 >
                   ابدأ مجاناً
-                  <ArrowLeft className="w-5 h-5 mr-2" />
                 </Button>
               </Link>
               <Link to="/preview/demo">
                 <Button
                   size="lg"
-                  variant="outline"
-                  className="border-white/30 text-white hover:bg-white/10 text-lg px-8 py-6 rounded-full"
+                  variant="ghost"
+                  className="text-white hover:bg-white/10 text-lg px-8 py-6 rounded-full border-2 border-white/30"
                 >
                   شاهد مثال
+                  <ArrowLeft className="w-5 h-5 mr-2" />
                 </Button>
               </Link>
-            </div>
-          </motion.div>
-
-          {/* Phone Mockup */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="mt-16"
-          >
-            <div className="relative mx-auto w-72 md:w-80">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-[3rem] blur-2xl opacity-30" />
-              <div className="relative bg-gray-900 rounded-[3rem] p-4 border border-white/20 shadow-2xl">
-                <div className="bg-gradient-to-br from-purple-600 via-blue-600 to-cyan-500 rounded-[2.5rem] p-6 min-h-[400px]">
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm mb-4 flex items-center justify-center text-3xl">
-                      👤
-                    </div>
-                    <h3 className="text-white font-bold text-lg">أحمد محمد</h3>
-                    <p className="text-white/60 text-sm mb-6">@ahmed</p>
-                    
-                    <div className="w-full space-y-3">
-                      {["🌐 موقعي الشخصي", "📸 انستقرام", "🐦 تويتر", "📺 يوتيوب"].map((link, i) => (
-                        <div
-                          key={i}
-                          className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl py-3 px-4 text-white text-sm hover:bg-white/20 transition-all cursor-pointer"
-                        >
-                          {link}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </motion.div>
         </div>
@@ -150,22 +192,19 @@ const Index = () => {
 
       {/* Features Section */}
       <section className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
               لماذا Link.iq؟
             </h2>
-            <p className="text-white/60 text-lg">
-              كل ما تحتاجه لإدارة روابطك في مكان واحد
-            </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {features.map((feature, index) => (
               <motion.div
                 key={index}
@@ -175,9 +214,11 @@ const Index = () => {
                 transition={{ delay: index * 0.1 }}
                 className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-8 hover:scale-105 transition-transform"
               >
-                <div className="text-5xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
-                <p className="text-white/60">{feature.description}</p>
+                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6`}>
+                  <feature.icon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
+                <p className="text-white/70">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -186,19 +227,18 @@ const Index = () => {
 
       {/* Themes Section */}
       <section className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              <Palette className="inline-block w-10 h-10 ml-2" />
-              ثيمات مميزة
+            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-l from-pink-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
+              اختر ثيمك المفضل
             </h2>
-            <p className="text-white/60 text-lg">
-              اختر الثيم الذي يناسب شخصيتك
+            <p className="text-white/70 text-lg">
+              4 تصاميم مختلفة لتناسب ذوقك
             </p>
           </motion.div>
 
@@ -212,10 +252,21 @@ const Index = () => {
                 transition={{ delay: index * 0.1 }}
                 className="group cursor-pointer"
               >
-                <div
-                  className={`bg-gradient-to-br ${theme.gradient} rounded-2xl h-40 mb-3 border border-white/20 group-hover:scale-105 transition-transform shadow-lg`}
-                />
-                <p className="text-white/80 text-center font-medium">{theme.name}</p>
+                <div className={`${theme.bg} rounded-2xl h-64 mb-4 border-2 border-white/20 group-hover:scale-105 transition-transform shadow-xl overflow-hidden p-4`}>
+                  {/* Mini Profile Preview */}
+                  <div className="flex flex-col items-center pt-4">
+                    <div className="w-10 h-10 rounded-full bg-white/30 mb-2" />
+                    <div className="w-20 h-2 bg-white/40 rounded mb-1" />
+                    <div className="w-16 h-1.5 bg-white/30 rounded mb-4" />
+                  </div>
+                  {/* Mini Links */}
+                  <div className="space-y-2 px-2">
+                    <div className={`${theme.cards} h-8 rounded-lg`} />
+                    <div className={`${theme.cards} h-8 rounded-lg`} />
+                    <div className={`${theme.cards} h-8 rounded-lg`} />
+                  </div>
+                </div>
+                <p className="text-white/90 text-center font-semibold">{theme.name}</p>
               </motion.div>
             ))}
           </div>
@@ -224,23 +275,22 @@ const Index = () => {
 
       {/* CTA Section */}
       <section className="py-24 px-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-gradient-to-r from-purple-600/50 to-cyan-600/50 backdrop-blur-lg border border-white/20 rounded-3xl p-12 text-center"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              جاهز للبدء؟
+            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-l from-pink-400 via-purple-300 to-pink-400 bg-clip-text text-transparent mb-6">
+              جاهز لإنشاء صفحتك؟
             </h2>
-            <p className="text-white/70 text-lg mb-8">
-              أنشئ صفحتك الشخصية في أقل من دقيقة
+            <p className="text-white/70 text-xl mb-10">
+              انضم الآن واحصل على صفحة روابط احترافية مجاناً
             </p>
             <Link to="/auth">
               <Button
                 size="lg"
-                className="bg-white text-purple-600 hover:bg-white/90 text-lg px-8 py-6 rounded-full font-bold"
+                className="bg-white text-purple-600 hover:bg-white/90 text-xl px-12 py-7 rounded-full font-bold shadow-xl"
               >
                 ابدأ الآن مجاناً
               </Button>
@@ -252,12 +302,8 @@ const Index = () => {
       {/* Footer */}
       <footer className="py-8 px-6 border-t border-white/10">
         <div className="max-w-6xl mx-auto text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Link2 className="w-6 h-6 text-cyan-400" />
-            <span className="text-xl font-bold text-white">Link.iq</span>
-          </div>
-          <p className="text-white/40 text-sm">
-            © 2024 Link.iq - جميع الحقوق محفوظة
+          <p className="text-white/50 text-sm">
+            صنع بكل حب للسوق العراقي والعربي
           </p>
         </div>
       </footer>
