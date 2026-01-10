@@ -20,6 +20,7 @@ import {
   Trash2
 } from "lucide-react";
 import { toast } from "sonner";
+import QRCode from "qrcode";
 
 export default function Dashboard() {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -63,6 +64,38 @@ export default function Dashboard() {
     const url = `${window.location.origin}/preview/${profile?.username}`;
     navigator.clipboard.writeText(url);
     toast.success("تم نسخ الرابط");
+  };
+
+  const downloadQRCode = async () => {
+    if (!profile?.username) {
+      toast.error("لا يمكن إنشاء QR Code");
+      return;
+    }
+    
+    try {
+      const url = `${window.location.origin}/preview/${profile.username}`;
+      const qrDataUrl = await QRCode.toDataURL(url, {
+        width: 512,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#ffffff',
+        },
+      });
+      
+      // Create download link
+      const link = document.createElement('a');
+      link.download = `${profile.username}-qrcode.png`;
+      link.href = qrDataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success("تم تحميل QR Code بنجاح");
+    } catch (error) {
+      console.error("Error generating QR code:", error);
+      toast.error("حدث خطأ أثناء إنشاء QR Code");
+    }
   };
 
   const totalClicks = links.reduce((sum, link) => sum + link.click_count, 0);
@@ -203,6 +236,7 @@ export default function Dashboard() {
             تحميل بطاقة PDF
           </Button>
           <Button
+            onClick={downloadQRCode}
             className="bg-slate-900/50 hover:bg-slate-800/50 backdrop-blur-lg border border-white/10 text-white rounded-xl py-6 gap-3"
           >
             <QrCode className="w-5 h-5" />
