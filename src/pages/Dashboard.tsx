@@ -6,6 +6,12 @@ import { useProfile } from "@/hooks/useProfile";
 import { useLinks } from "@/hooks/useLinks";
 import { AddLinkDialog } from "@/components/AddLinkDialog";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { 
   ExternalLink, 
   Eye, 
@@ -17,7 +23,8 @@ import {
   FileText,
   Users,
   MousePointerClick,
-  Trash2
+  Trash2,
+  Download
 } from "lucide-react";
 import { toast } from "sonner";
 import QRCode from "qrcode";
@@ -31,6 +38,8 @@ export default function Dashboard() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [bio, setBio] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -66,7 +75,7 @@ export default function Dashboard() {
     toast.success("تم نسخ الرابط");
   };
 
-  const downloadQRCode = async () => {
+  const showQRCode = async () => {
     if (!profile?.username) {
       toast.error("لا يمكن إنشاء QR Code");
       return;
@@ -83,19 +92,24 @@ export default function Dashboard() {
         },
       });
       
-      // Create download link
-      const link = document.createElement('a');
-      link.download = `${profile.username}-qrcode.png`;
-      link.href = qrDataUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      toast.success("تم تحميل QR Code بنجاح");
+      setQrCodeUrl(qrDataUrl);
+      setQrModalOpen(true);
     } catch (error) {
       console.error("Error generating QR code:", error);
       toast.error("حدث خطأ أثناء إنشاء QR Code");
     }
+  };
+
+  const downloadQRCode = () => {
+    if (!qrCodeUrl || !profile?.username) return;
+    
+    const link = document.createElement('a');
+    link.download = `${profile.username}-qrcode.png`;
+    link.href = qrCodeUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("تم تحميل QR Code بنجاح");
   };
 
   const totalClicks = links.reduce((sum, link) => sum + link.click_count, 0);
@@ -236,13 +250,52 @@ export default function Dashboard() {
             تحميل بطاقة PDF
           </Button>
           <Button
-            onClick={downloadQRCode}
+            onClick={showQRCode}
             className="bg-slate-900/50 hover:bg-slate-800/50 backdrop-blur-lg border border-white/10 text-white rounded-xl py-6 gap-3"
           >
             <QrCode className="w-5 h-5" />
-            تحميل QR Code
+            عرض QR Code
           </Button>
         </div>
+
+        {/* QR Code Modal */}
+        <Dialog open={qrModalOpen} onOpenChange={setQrModalOpen}>
+          <DialogContent className="bg-slate-900/95 backdrop-blur-xl border border-white/20 text-white max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="text-center text-xl font-bold">QR Code</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col items-center gap-6 py-4">
+              {qrCodeUrl && (
+                <div className="bg-white p-4 rounded-2xl">
+                  <img 
+                    src={qrCodeUrl} 
+                    alt="QR Code" 
+                    className="w-64 h-64"
+                  />
+                </div>
+              )}
+              <p className="text-white/60 text-sm text-center">
+                امسح الكود للوصول لصفحتك
+              </p>
+              <div className="flex gap-3 w-full">
+                <Button
+                  onClick={downloadQRCode}
+                  className="flex-1 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-xl py-3 gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  تحميل
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setQrModalOpen(false)}
+                  className="flex-1 border-white/20 text-white hover:bg-white/10 rounded-xl py-3"
+                >
+                  إغلاق
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Links Section */}
         <motion.div
