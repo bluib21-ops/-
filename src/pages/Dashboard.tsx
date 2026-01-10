@@ -244,6 +244,7 @@ export default function Dashboard() {
             نسخ الرابط
           </Button>
           <Button
+            onClick={() => navigate("/card-editor")}
             className="bg-slate-900/50 hover:bg-slate-800/50 backdrop-blur-lg border border-white/10 text-white rounded-xl py-6 gap-3"
           >
             <FileText className="w-5 h-5" />
@@ -257,6 +258,28 @@ export default function Dashboard() {
             عرض QR Code
           </Button>
         </div>
+
+        {/* Digital Card Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="bg-slate-900/50 backdrop-blur-lg border border-white/10 rounded-2xl p-6 mb-8"
+        >
+          <div className="flex items-center justify-between">
+            <Button
+              onClick={() => navigate("/card-editor")}
+              className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl px-8 py-6 gap-3 text-lg"
+            >
+              <FileText className="w-6 h-6" />
+              تصميم بطاقتي
+            </Button>
+            <div className="text-right">
+              <h2 className="text-2xl font-bold text-white mb-2">بطاقتي الرقمية</h2>
+              <p className="text-white/60">صمم بطاقة أعمالك الاحترافية وحملها جاهزة للطباعة</p>
+            </div>
+          </div>
+        </motion.div>
 
         {/* QR Code Modal */}
         <Dialog open={qrModalOpen} onOpenChange={setQrModalOpen}>
