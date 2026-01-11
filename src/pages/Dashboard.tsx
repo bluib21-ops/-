@@ -25,7 +25,9 @@ import {
   Users,
   MousePointerClick,
   Trash2,
-  Download
+  Download,
+  Wand2,
+  Sparkles
 } from "lucide-react";
 import { toast } from "sonner";
 import QRCode from "qrcode";
@@ -260,11 +262,36 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        {/* Digital Card Section */}
+        {/* AI Theme Generator Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
+          className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 backdrop-blur-lg border border-pink-500/30 rounded-2xl p-6 mb-8"
+        >
+          <div className="flex items-center justify-between">
+            <Button
+              onClick={() => navigate("/ai-theme-generator")}
+              className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-xl px-8 py-6 gap-3 text-lg"
+            >
+              <Wand2 className="w-6 h-6" />
+              توليد ثيم بالذكاء الاصطناعي
+            </Button>
+            <div className="text-right">
+              <div className="flex items-center gap-2 justify-end mb-2">
+                <Sparkles className="w-5 h-5 text-pink-400" />
+                <h2 className="text-2xl font-bold text-white">مولد الثيمات الذكي</h2>
+              </div>
+              <p className="text-white/60">صف ما تريد، والذكاء الاصطناعي يصمم لك ثيماً مخصصاً</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Digital Card Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
           className="bg-slate-900/50 backdrop-blur-lg border border-white/10 rounded-2xl p-6 mb-8"
         >
           <div className="flex items-center justify-between">
