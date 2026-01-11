@@ -61,6 +61,7 @@ export type Database = {
           display_name: string | null
           id: string
           theme: string | null
+          theme_song_url: string | null
           updated_at: string
           user_id: string
           username: string
@@ -72,6 +73,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           theme?: string | null
+          theme_song_url?: string | null
           updated_at?: string
           user_id: string
           username: string
@@ -83,6 +85,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           theme?: string | null
+          theme_song_url?: string | null
           updated_at?: string
           user_id?: string
           username?: string

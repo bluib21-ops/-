@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useLinks } from "@/hooks/useLinks";
 import { AddLinkDialog } from "@/components/AddLinkDialog";
+import { MusicUploader } from "@/components/MusicUploader";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -281,6 +282,21 @@ export default function Dashboard() {
           </div>
         </motion.div>
 
+        {/* Music Uploader Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mb-8"
+        >
+          <MusicUploader
+            currentSongUrl={profile?.theme_song_url || null}
+            onUpload={(url) => {
+              updateProfile.mutate({ theme_song_url: url });
+            }}
+          />
+        </motion.div>
+
         {/* QR Code Modal */}
         <Dialog open={qrModalOpen} onOpenChange={setQrModalOpen}>
           <DialogContent className="bg-slate-900/95 backdrop-blur-xl border border-white/20 text-white max-w-sm">
@@ -324,7 +340,7 @@ export default function Dashboard() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.45 }}
           className="bg-slate-900/50 backdrop-blur-lg border border-white/10 rounded-2xl p-6"
         >
           <div className="flex items-center justify-between mb-6">
