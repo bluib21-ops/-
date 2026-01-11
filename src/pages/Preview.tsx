@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { usePublicProfile } from "@/hooks/useProfile";
 import { usePublicLinks } from "@/hooks/useLinks";
 import { LinkCard } from "@/components/LinkCard";
+import { MusicPlayer } from "@/components/MusicPlayer";
 import { Link2, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -156,6 +157,18 @@ export default function Preview() {
             <p className="text-muted-foreground mt-2">{profile.bio}</p>
           )}
         </motion.div>
+
+        {/* Music Player */}
+        {profile.theme_song_url && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="mb-6"
+          >
+            <MusicPlayer songUrl={profile.theme_song_url} />
+          </motion.div>
+        )}
 
         <div className="space-y-4">
           {links.length === 0 ? (

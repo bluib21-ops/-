@@ -10,6 +10,7 @@ export interface Profile {
   bio: string | null;
   avatar_url: string | null;
   theme: "neon-purple" | "dark" | "cyan-neon" | "sunset";
+  theme_song_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -36,7 +37,7 @@ export function useProfile() {
   });
 
   const updateProfile = useMutation({
-    mutationFn: async (updates: Partial<Pick<Profile, "username" | "display_name" | "bio" | "avatar_url" | "theme">>) => {
+    mutationFn: async (updates: Partial<Pick<Profile, "username" | "display_name" | "bio" | "avatar_url" | "theme" | "theme_song_url">>) => {
       if (!user) throw new Error("Not authenticated");
       
       const { data, error } = await supabase
