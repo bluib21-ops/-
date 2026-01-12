@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { usePublicProfile } from "@/hooks/useProfile";
@@ -8,11 +8,50 @@ import { MusicPlayer } from "@/components/MusicPlayer";
 import { Link2, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+interface CustomTheme {
+  name: string;
+  colors: {
+    primary: string;
+    secondary: string;
+    background: string;
+    cardBg: string;
+    cardBorder: string;
+    text: string;
+    textSecondary: string;
+    accent: string;
+    hover: string;
+  };
+  fonts: {
+    heading: string;
+    body: string;
+  };
+  layout: {
+    cardRadius: string;
+  };
+  effects: {
+    cardShadow: string;
+    backdropBlur: string;
+  };
+}
+
 export default function Preview() {
   const { username } = useParams<{ username: string }>();
   const navigate = useNavigate();
   const { data: profile, isLoading: profileLoading } = usePublicProfile(username || "");
   const { data: links = [], isLoading: linksLoading } = usePublicLinks(profile?.user_id || "");
+  
+  // Load custom AI theme from localStorage
+  const customTheme = useMemo<CustomTheme | null>(() => {
+    try {
+      const saved = localStorage.getItem("custom-ai-theme");
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error("Failed to parse custom theme:", e);
+    }
+    return null;
+  }, []);
 
   useEffect(() => {
     if (profile?.theme) {
@@ -130,8 +169,40 @@ export default function Preview() {
     );
   }
 
+  // Generate inline styles from custom theme
+  const containerStyle = customTheme ? {
+    background: customTheme.colors.background,
+    minHeight: '100vh',
+  } : {};
+
+  const textStyle = customTheme ? {
+    color: customTheme.colors.text,
+    fontFamily: customTheme.fonts.heading,
+  } : {};
+
+  const secondaryTextStyle = customTheme ? {
+    color: customTheme.colors.textSecondary,
+  } : {};
+
+  const cardStyle = customTheme ? {
+    backgroundColor: customTheme.colors.cardBg,
+    borderColor: customTheme.colors.cardBorder,
+    borderWidth: '1px',
+    borderRadius: customTheme.layout.cardRadius,
+    boxShadow: customTheme.effects.cardShadow,
+    backdropFilter: `blur(${customTheme.effects.backdropBlur})`,
+  } : {};
+
+  const avatarBorderStyle = customTheme ? {
+    borderColor: customTheme.colors.primary,
+    borderWidth: '4px',
+  } : {};
+
   return (
-    <div className="min-h-screen py-12 px-6">
+    <div 
+      className={customTheme ? "py-12 px-6" : "min-h-screen py-12 px-6"}
+      style={containerStyle}
+    >
       <div className="max-w-lg mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -143,18 +214,28 @@ export default function Preview() {
               src={profile.avatar_url}
               alt={profile.display_name || profile.username}
               className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
+              style={avatarBorderStyle}
             />
           ) : (
-            <div className="w-24 h-24 rounded-full gradient-bg mx-auto mb-4 flex items-center justify-center">
-              <span className="text-4xl">
+            <div 
+              className={customTheme ? "w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center" : "w-24 h-24 rounded-full gradient-bg mx-auto mb-4 flex items-center justify-center"}
+              style={customTheme ? { backgroundColor: customTheme.colors.primary } : {}}
+            >
+              <span className="text-4xl" style={customTheme ? { color: '#fff' } : {}}>
                 {(profile.display_name || profile.username)[0]?.toUpperCase()}
               </span>
             </div>
           )}
-          <h1 className="text-2xl font-bold">{profile.display_name || profile.username}</h1>
-          <p className="text-muted-foreground">@{profile.username}</p>
+          <h1 className="text-2xl font-bold" style={textStyle}>
+            {profile.display_name || profile.username}
+          </h1>
+          <p style={secondaryTextStyle} className={customTheme ? "" : "text-muted-foreground"}>
+            @{profile.username}
+          </p>
           {profile.bio && (
-            <p className="text-muted-foreground mt-2">{profile.bio}</p>
+            <p style={secondaryTextStyle} className={customTheme ? "mt-2" : "text-muted-foreground mt-2"}>
+              {profile.bio}
+            </p>
           )}
         </motion.div>
 
@@ -172,8 +253,13 @@ export default function Preview() {
 
         <div className="space-y-4">
           {links.length === 0 ? (
-            <div className="glass-card p-8 text-center">
-              <p className="text-muted-foreground">لا توجد روابط بعد</p>
+            <div 
+              className={customTheme ? "p-8 text-center" : "glass-card p-8 text-center"}
+              style={cardStyle}
+            >
+              <p style={secondaryTextStyle} className={customTheme ? "" : "text-muted-foreground"}>
+                لا توجد روابط بعد
+              </p>
             </div>
           ) : (
             links.map((link, i) => (
@@ -182,14 +268,18 @@ export default function Preview() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="link-card"
+                className={customTheme ? "flex items-center gap-4 p-4 cursor-pointer transition-all hover:scale-[1.02]" : "link-card"}
+                style={cardStyle}
                 onClick={() => handleLinkClick(link)}
               >
                 <span className="text-3xl">{link.icon}</span>
                 <div className="flex-1 text-right">
-                  <h3 className="font-semibold">{link.title}</h3>
+                  <h3 className="font-semibold" style={textStyle}>{link.title}</h3>
                 </div>
-                <ExternalLink className="w-5 h-5 text-muted-foreground" />
+                <ExternalLink 
+                  className="w-5 h-5" 
+                  style={secondaryTextStyle}
+                />
               </motion.div>
             ))
           )}
@@ -203,7 +293,8 @@ export default function Preview() {
         >
           <button
             onClick={() => navigate("/")}
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            className={customTheme ? "inline-flex items-center gap-2 transition-colors hover:opacity-80" : "inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"}
+            style={secondaryTextStyle}
           >
             <Link2 className="w-4 h-4" />
             <span>أنشئ صفحتك مع Link.iq</span>
