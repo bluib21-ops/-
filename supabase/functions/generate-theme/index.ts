@@ -33,22 +33,19 @@ serve(async (req) => {
 
     console.log('Generating theme for prompt:', userPrompt);
 
-    const systemPrompt = `أنت مصمم ثيمات محترف متخصص في تصميم واجهات المستخدم.
+    const systemPrompt = `أنت مصمم ثيمات محترف. المستخدم يريد: "${userPrompt}"
 
-المستخدم يريد: "${userPrompt}"
-
-صمم له ثيم كامل ومتكامل. أرجع النتيجة بصيغة JSON التالية فقط (بدون أي نص إضافي):
-
+أرجع JSON فقط بدون أي نص:
 {
-  "name": "اسم الثيم بالإنجليزي",
-  "nameAr": "اسم الثيم بالعربية",
-  "description": "وصف مختصر للثيم بالعربية",
-  "mood": "المزاج (احترافي، مرح، جاد، إلخ)",
+  "name": "Theme Name",
+  "nameAr": "اسم الثيم",
+  "description": "وصف مختصر",
+  "mood": "المزاج",
   "colors": {
     "primary": "#hex",
     "secondary": "#hex",
-    "background": "linear-gradient(...) or #hex",
-    "cardBg": "#hex or rgba(...)",
+    "background": "#hex or linear-gradient(...)",
+    "cardBg": "#hex",
     "cardBorder": "#hex",
     "text": "#hex",
     "textSecondary": "#hex",
@@ -56,31 +53,24 @@ serve(async (req) => {
     "hover": "#hex"
   },
   "fonts": {
-    "heading": "Cairo/Tajawal/Almarai",
+    "heading": "Cairo",
     "headingWeight": "700",
-    "body": "Cairo/Tajawal/Almarai",
+    "body": "Cairo",
     "bodyWeight": "400"
   },
   "layout": {
     "cardRadius": "12px",
     "cardSpacing": "16px",
-    "cardStyle": "elevated/flat/outlined"
+    "cardStyle": "elevated"
   },
   "effects": {
     "cardShadow": "0 4px 12px rgba(0,0,0,0.1)",
     "backdropBlur": "10px",
-    "buttonHover": "lift/scale/glow",
-    "animation": "fade/slide/none"
+    "buttonHover": "lift",
+    "animation": "fade"
   },
-  "tags": ["tag1", "tag2", "tag3"]
-}
-
-ملاحظات مهمة:
-- الألوان يجب أن تكون متناسقة ومتناغمة
-- الخطوط يجب أن تكون من Google Fonts العربية
-- التصميم يجب أن يكون احترافي وعصري
-- راعِ accessibility (تباين الألوان جيد)
-- الثيم يجب أن يعكس طبيعة عمل/مهنة المستخدم`;
+  "tags": ["tag1", "tag2"]
+}`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -91,7 +81,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 2000,
+        max_tokens: 4000,
         messages: [
           {
             role: 'user',
@@ -122,9 +112,22 @@ serve(async (req) => {
       );
     }
 
-    // Extract JSON from response
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
+    // Extract JSON from response - handle code blocks
+    let jsonString = content;
+    
+    // Remove markdown code blocks if present
+    const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (codeBlockMatch) {
+      jsonString = codeBlockMatch[1].trim();
+    } else {
+      // Try to extract raw JSON
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        jsonString = jsonMatch[0];
+      }
+    }
+
+    if (!jsonString || !jsonString.includes('{')) {
       console.error('No JSON found in response:', content);
       return new Response(
         JSON.stringify({ error: 'فشل في استخراج بيانات الثيم' }),
@@ -133,7 +136,7 @@ serve(async (req) => {
     }
 
     try {
-      const theme = JSON.parse(jsonMatch[0]);
+      const theme = JSON.parse(jsonString);
       console.log('Theme generated successfully:', theme.name);
       
       return new Response(
@@ -141,9 +144,9 @@ serve(async (req) => {
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     } catch (parseError) {
-      console.error('JSON parse error:', parseError);
+      console.error('JSON parse error:', parseError, 'Content:', jsonString.substring(0, 500));
       return new Response(
-        JSON.stringify({ error: 'فشل في تحليل بيانات الثيم' }),
+        JSON.stringify({ error: 'فشل في تحليل بيانات الثيم، جرب وصفاً أبسط' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
