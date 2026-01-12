@@ -5,6 +5,7 @@ import { usePublicProfile } from "@/hooks/useProfile";
 import { usePublicLinks } from "@/hooks/useLinks";
 import { LinkCard } from "@/components/LinkCard";
 import { MusicPlayer } from "@/components/MusicPlayer";
+import { AnimatedBackground } from "@/components/AnimatedBackground";
 import { Link2, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -199,11 +200,13 @@ export default function Preview() {
   } : {};
 
   return (
-    <div 
-      className={customTheme ? "py-12 px-6" : "min-h-screen py-12 px-6"}
-      style={containerStyle}
-    >
-      <div className="max-w-lg mx-auto">
+    <>
+      <AnimatedBackground />
+      <div 
+        className={customTheme ? "py-12 px-6 relative" : "min-h-screen py-12 px-6 relative"}
+        style={containerStyle}
+      >
+        <div className="max-w-lg mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -300,7 +303,8 @@ export default function Preview() {
             <span>أنشئ صفحتك مع Link.iq</span>
           </button>
         </motion.div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
