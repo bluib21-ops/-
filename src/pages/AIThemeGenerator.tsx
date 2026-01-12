@@ -119,12 +119,25 @@ export default function AIThemeGenerator() {
   const applyTheme = async () => {
     if (!generatedTheme) return;
 
-    // Save theme to localStorage for now
-    localStorage.setItem("custom-ai-theme", JSON.stringify(generatedTheme));
-    toast.success("تم تطبيق الثيم بنجاح!");
-    
-    // Navigate back to dashboard
-    navigate("/dashboard");
+    try {
+      // Save full theme to localStorage
+      localStorage.setItem("custom-ai-theme", JSON.stringify(generatedTheme));
+      
+      // Also save theme name to database profile
+      await updateProfile.mutateAsync({ theme: generatedTheme.name as any });
+      
+      toast.success("تم تطبيق الثيم بنجاح!");
+      
+      // Navigate to preview to see the theme
+      if (profile?.username) {
+        navigate(`/preview/${profile.username}`);
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error("Error applying theme:", error);
+      toast.error("حدث خطأ في تطبيق الثيم");
+    }
   };
 
   if (authLoading || !user) {
