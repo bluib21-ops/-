@@ -19,6 +19,15 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+interface BackgroundElement {
+  x: string;
+  y: string;
+  size: string;
+  color: string;
+  opacity: number;
+  blur: string;
+}
+
 interface GeneratedTheme {
   name: string;
   nameAr: string;
@@ -51,6 +60,39 @@ interface GeneratedTheme {
     backdropBlur: string;
     buttonHover: string;
     animation: string;
+  };
+  backgroundElements?: {
+    type: string;
+    count: number;
+    items: BackgroundElement[];
+    animation: string;
+  };
+  decorativeShapes?: {
+    enabled: boolean;
+    type: string;
+    position: string;
+    count: number;
+    opacity: number;
+    color: string;
+    size: string;
+  };
+  particles?: {
+    enabled: boolean;
+    count: number;
+    type: string;
+    color: string;
+    opacity: number;
+    speed: string;
+    size: string;
+  };
+  glowEffects?: {
+    aroundProfile: boolean;
+    behindCards: boolean;
+    profileGlowColor: string;
+    profileGlowSize: string;
+    cardGlowColor: string;
+    cardGlowSize: string;
+    pulseAnimation: boolean;
   };
   tags: string[];
 }
