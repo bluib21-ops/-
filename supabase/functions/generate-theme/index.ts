@@ -30,120 +30,70 @@ serve(async (req) => {
       );
     }
 
-    const systemPrompt = `أنت مصمم ثيمات محترف متخصص في تصميم واجهات المستخدم الإبداعية.
-المستخدم يريد: "${userPrompt}"
+    const systemPrompt = `أنت مصمم ثيمات محترف. صمم ثيم كامل بناءً على: "${userPrompt}"
 
-صمم له ثيم كامل ومتكامل مع عناصر بصرية ورسومات مذهلة!
+أرجع JSON فقط بهذا الشكل بالضبط:
 
-أرجع النتيجة بصيغة JSON التالية فقط (بدون أي نص إضافي):
 {
-  "name": "اسم الثيم بالإنجليزي (كلمة أو كلمتين)",
+  "name": "اسم الثيم بالإنجليزي",
   "nameAr": "اسم الثيم بالعربية",
-  "description": "وصف قصير للثيم (جملة أو جملتين)",
-  "mood": "الشعور العام: مثل هادئ، حيوي، احترافي، دافئ",
+  "description": "وصف قصير",
+  "mood": "الشعور العام",
   "colors": {
-    "primary": "#hex - اللون الرئيسي",
-    "secondary": "#hex - اللون الثانوي",
-    "background": "خلفية متدرجة أو لون واحد مثل: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
-    "cardBg": "rgba أو hex - خلفية الكروت",
-    "cardBorder": "rgba أو hex - حدود الكروت",
-    "text": "#hex - لون النص الرئيسي",
-    "textSecondary": "rgba أو hex - لون النص الثانوي",
-    "accent": "#hex - لون التأكيد",
-    "hover": "#hex - لون التحويم"
+    "primary": "#hex",
+    "secondary": "#hex",
+    "background": "linear-gradient(180deg, #color1, #color2)",
+    "cardBg": "rgba(255,255,255,0.05)",
+    "cardBorder": "rgba(255,255,255,0.1)",
+    "text": "#hex",
+    "textSecondary": "rgba(255,255,255,0.7)",
+    "accent": "#hex",
+    "hover": "#hex"
   },
   "fonts": {
-    "heading": "اسم الخط للعناوين من Google Fonts مثل: Cairo, Tajawal, Almarai",
-    "headingWeight": "وزن الخط: 600 أو 700 أو 800",
-    "body": "اسم الخط للنصوص",
-    "bodyWeight": "وزن الخط: 400 أو 500"
+    "heading": "Cairo",
+    "headingWeight": "700",
+    "body": "Tajawal",
+    "bodyWeight": "400"
   },
   "layout": {
-    "cardRadius": "نصف قطر الكروت مثل: 16px أو 24px",
-    "cardSpacing": "المسافة بين الكروت مثل: 12px أو 16px",
-    "cardStyle": "نمط الكروت: glass أو solid أو gradient أو neumorphic"
+    "cardRadius": "16px",
+    "cardSpacing": "12px",
+    "cardStyle": "glass"
   },
   "effects": {
-    "cardShadow": "ظل الكروت مثل: 0 10px 40px rgba(0,0,0,0.3)",
-    "backdropBlur": "تشويش الخلفية مثل: 10px أو 20px",
-    "buttonHover": "تأثير التحويم: scale أو glow أو lift",
-    "animation": "الأنيميشن: fade أو slide أو bounce"
-  },
-  "backgroundElements": {
-    "type": "نوع العناصر: blurred-circles أو particles أو waves أو geometric-shapes أو gradient-orbs",
-    "count": 4,
-    "items": [
-      {
-        "x": "10%",
-        "y": "15%",
-        "size": "300px",
-        "color": "#hex مع opacity",
-        "opacity": 0.3,
-        "blur": "80px"
-      },
-      {
-        "x": "80%",
-        "y": "60%",
-        "size": "400px",
-        "color": "#hex مع opacity",
-        "opacity": 0.2,
-        "blur": "100px"
-      },
-      {
-        "x": "50%",
-        "y": "80%",
-        "size": "250px",
-        "color": "#hex مع opacity",
-        "opacity": 0.25,
-        "blur": "60px"
-      },
-      {
-        "x": "20%",
-        "y": "50%",
-        "size": "200px",
-        "color": "#hex مع opacity",
-        "opacity": 0.15,
-        "blur": "50px"
-      }
-    ],
-    "animation": "slow-float أو rotate أو pulse أو drift"
-  },
-  "decorativeShapes": {
-    "enabled": true,
-    "type": "triangles أو circles أو lines أو stars أو dots",
-    "position": "corners أو random أو around-profile أو scattered",
-    "count": 8,
-    "opacity": 0.08,
-    "color": "#hex",
-    "size": "small أو medium أو large"
-  },
-  "particles": {
-    "enabled": true,
-    "count": 80,
-    "type": "dots أو sparkles أو music-notes أو stars أو bubbles",
-    "color": "#hex أو white",
-    "opacity": 0.4,
-    "speed": "slow أو medium أو fast",
-    "size": "2px"
-  },
-  "glowEffects": {
-    "aroundProfile": true,
-    "behindCards": true,
-    "profileGlowColor": "#hex مع opacity",
-    "profileGlowSize": "100px",
-    "cardGlowColor": "#hex مع opacity",
-    "cardGlowSize": "30px",
-    "pulseAnimation": true
+    "backdropBlur": "20px",
+    "cardShadow": "0 8px 32px rgba(0,0,0,0.3)",
+    "glassEffect": true,
+    "profileGlow": {
+      "enabled": true,
+      "color": "rgba(96,165,250,0.5)",
+      "size": "60px"
+    },
+    "backgroundBlobs": {
+      "enabled": true,
+      "count": 3,
+      "blobs": [
+        {"x": "20%", "y": "30%", "size": "500px", "color": "rgba(96,165,250,0.15)"},
+        {"x": "80%", "y": "70%", "size": "600px", "color": "rgba(168,85,247,0.12)"},
+        {"x": "50%", "y": "50%", "size": "450px", "color": "rgba(103,232,249,0.1)"}
+      ]
+    },
+    "animations": {
+      "blobsMove": true,
+      "profilePulse": true,
+      "cardHover": "translateY(-4px)"
+    }
   },
   "tags": ["tag1", "tag2", "tag3"]
 }
 
-مهم جداً:
-1. اختر ألوان متناسقة ومتوافقة مع طبيعة النشاط
-2. العناصر البصرية يجب أن تكون خفيفة ولا تشتت الانتباه
-3. استخدم تدرجات جميلة للخلفية
-4. الألوان يجب أن تكون بصيغة hex أو rgba
-5. أرجع JSON فقط بدون أي نص قبله أو بعده`;
+مهم جداً: 
+- الألوان متناسقة ومبدعة
+- effects يجب أن تكون قابلة للتطبيق بـ CSS
+- backgroundBlobs للدوائر الضبابية في الخلفية (3-5 دوائر بألوان مختلفة)
+- profileGlow للتوهج حول الصورة الشخصية
+- اختر ألوان تناسب وصف المستخدم`;
 
     console.log("Calling Anthropic API...");
 
@@ -156,7 +106,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-5-20250929",
-        max_tokens: 6000,
+        max_tokens: 4000,
         messages: [
           {
             role: "user",

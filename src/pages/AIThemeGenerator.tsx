@@ -19,13 +19,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-interface BackgroundElement {
+
+interface BlobItem {
   x: string;
   y: string;
   size: string;
   color: string;
-  opacity: number;
-  blur: string;
 }
 
 interface GeneratedTheme {
@@ -58,41 +57,22 @@ interface GeneratedTheme {
   effects: {
     cardShadow: string;
     backdropBlur: string;
-    buttonHover: string;
-    animation: string;
-  };
-  backgroundElements?: {
-    type: string;
-    count: number;
-    items: BackgroundElement[];
-    animation: string;
-  };
-  decorativeShapes?: {
-    enabled: boolean;
-    type: string;
-    position: string;
-    count: number;
-    opacity: number;
-    color: string;
-    size: string;
-  };
-  particles?: {
-    enabled: boolean;
-    count: number;
-    type: string;
-    color: string;
-    opacity: number;
-    speed: string;
-    size: string;
-  };
-  glowEffects?: {
-    aroundProfile: boolean;
-    behindCards: boolean;
-    profileGlowColor: string;
-    profileGlowSize: string;
-    cardGlowColor: string;
-    cardGlowSize: string;
-    pulseAnimation: boolean;
+    glassEffect?: boolean;
+    profileGlow?: {
+      enabled: boolean;
+      color: string;
+      size: string;
+    };
+    backgroundBlobs?: {
+      enabled: boolean;
+      count: number;
+      blobs: BlobItem[];
+    };
+    animations?: {
+      blobsMove: boolean;
+      profilePulse: boolean;
+      cardHover: string;
+    };
   };
   tags: string[];
 }
