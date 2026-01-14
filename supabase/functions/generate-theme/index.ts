@@ -6,6 +6,54 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+function extractFirstJsonObject(text: string): string | null {
+  const start = text.indexOf("{");
+  if (start === -1) return null;
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+
+    if (inString && ch === "\\") {
+      escaped = true;
+      continue;
+    }
+
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+
+    if (!inString) {
+      if (ch === "{") depth++;
+      else if (ch === "}") {
+        depth--;
+        if (depth === 0) return text.slice(start, i + 1);
+      }
+    }
+  }
+
+  return null; // likely truncated output
+}
+
+function sanitizeJsonString(json: string): string {
+  return json
+    .replace(/\uFEFF/g, "")
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    // remove trailing commas: {"a":1,} or [1,]
+    .replace(/,\s*([}\]])/g, "$1")
+    .trim();
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -106,11 +154,14 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-5-20250929",
-        max_tokens: 4000,
+        max_tokens: 6000,
+        temperature: 0.2,
         messages: [
           {
             role: "user",
-            content: systemPrompt,
+            content:
+              systemPrompt +
+              "\n\n⚠️ أعد JSON صالح 100% بدون أي فاصلة زائدة، وبدون أي علامات اقتباس داخل النصوص (أو قم بعمل escape لها). لا تضف أي نص خارج JSON.",
           },
         ],
       }),
@@ -146,31 +197,27 @@ serve(async (req) => {
       responseText = responseText.split("```")[1].split("```")[0].trim();
     }
 
-    // Find JSON object in response
-    const jsonStart = responseText.indexOf("{");
-    const jsonEnd = responseText.lastIndexOf("}");
-    
-    if (jsonStart === -1 || jsonEnd === -1) {
-      console.error("No JSON found in response");
+    const extracted = extractFirstJsonObject(responseText);
+    if (!extracted) {
+      console.error("No complete JSON object found (maybe truncated)");
       return new Response(
         JSON.stringify({ error: "فشل في تحليل بيانات الثيم" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const jsonString = responseText.substring(jsonStart, jsonEnd + 1);
+    const jsonString = sanitizeJsonString(extracted);
 
     try {
       const theme = JSON.parse(jsonString);
       console.log("Theme parsed successfully:", theme.name);
 
-      return new Response(
-        JSON.stringify({ theme }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ theme }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     } catch (parseError) {
       console.error("JSON parse error:", parseError);
-      console.error("Attempted to parse:", jsonString.substring(0, 500));
+      console.error("Attempted to parse (first 900 chars):", jsonString.substring(0, 900));
       return new Response(
         JSON.stringify({ error: "فشل في تحليل بيانات الثيم" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
