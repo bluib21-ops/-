@@ -38,7 +38,7 @@ serve(async (req) => {
         "Authorization": `Bearer ${LOVABLE_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "openai/gpt-5",
+        model: "google/gemini-2.5-flash",
         max_tokens: 8000,
         temperature: 0.7,
         messages: [
