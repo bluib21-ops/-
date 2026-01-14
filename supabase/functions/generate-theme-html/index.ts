@@ -15,7 +15,6 @@ interface UserData {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -23,10 +22,10 @@ serve(async (req) => {
   try {
     const { prompt, userData } = await req.json() as { prompt: string; userData: UserData };
     
-    console.log('Generating HTML theme for prompt:', prompt);
-    console.log('User data:', JSON.stringify(userData));
+    console.log('=== Theme Generator Started ===');
+    console.log('Prompt:', prompt);
+    console.log('User:', userData.name, '-', userData.links.length, 'links');
 
-    // استخدام Lovable AI Gateway
     const response = await fetch("https://ai-gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -36,89 +35,72 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "openai/gpt-5",
         max_tokens: 8000,
+        temperature: 0.7,
         messages: [
           {
             role: "system",
-            content: `أنت مصمم ويب محترف متخصص في تصميم صفحات البروفايل الجميلة والعصرية.
-مهمتك: تصميم صفحة HTML كاملة بناءً على وصف المستخدم.
+            content: `أنت مصمم ويب محترف. مهمتك إنشاء HTML كامل لصفحة بروفايل.
 
-القواعد:
-1. أرجع HTML كامل من <!DOCTYPE html> إلى </html>
-2. CSS مدمج داخل <style> في الـ <head>
-3. JavaScript مدمج داخل <script> قبل </body>
-4. التصميم responsive تماماً
-5. RTL للعربي
-6. استخدم Google Fonts (Cairo, Tajawal, Almarai)
-7. أضف تأثيرات CSS جميلة (gradients, shadows, animations)
-8. لا تضف أي نص خارج الـ placeholders`
+القواعد الصارمة:
+1. أرجع HTML فقط - بدون أي شرح أو markdown
+2. ابدأ بـ <!DOCTYPE html> وانتهي بـ </html>
+3. CSS داخل <style> في head
+4. استخدم placeholders بالضبط: {{name}}, {{username}}, {{image}}, {{bio}}, {{links}}
+5. اجعل التصميم RTL وresponsive
+6. استخدم Google Fonts: Cairo أو Tajawal`
           },
           {
             role: "user",
-            content: `صمم صفحة بروفايل HTML كاملة بهذا الثيم: "${prompt}"
+            content: `صمم صفحة بروفايل بثيم: "${prompt}"
 
-✅ استخدم هذه الـ placeholders بالضبط (سنستبدلها بالبيانات):
-- {{userName}} للاسم
-- {{username}} لليوزرنيم (يبدأ بـ @)
-- {{userImage}} لرابط الصورة
-- {{userBio}} للبايو
-- {{userLinks}} للروابط (placeholder واحد فقط)
+استخدم هذه الـ placeholders فقط:
+- {{name}} = الاسم
+- {{username}} = @username  
+- {{image}} = رابط الصورة
+- {{bio}} = البايو
+- {{links}} = الروابط (سأستبدلها)
 
-✅ البنية المطلوبة:
+البنية:
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{userName}}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <title>{{name}}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* CSS هنا - اجعله جميلاً ومتناسقاً مع الثيم */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Cairo', sans-serif; min-height: 100vh; }
-    /* أضف تأثيرات خلفية، ألوان، animations */
-    .profile-container { /* container رئيسي */ }
-    .profile-image { /* صورة البروفايل - دائرية مع تأثيرات */ }
-    .profile-name { /* الاسم */ }
-    .profile-username { /* اليوزرنيم */ }
-    .profile-bio { /* البايو */ }
-    .links { /* container الروابط */ }
-    .link-item { /* كل رابط - اجعله جميلاً مع hover effects */ }
-    .footer { /* فوتر */ }
+    body { font-family: 'Cairo', sans-serif; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+    /* أضف CSS جميل حسب الثيم المطلوب */
+    .container { /* الحاوية الرئيسية */ }
+    .profile-img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; }
+    .name { /* الاسم */ }
+    .username { /* اليوزرنيم */ }
+    .bio { /* البايو */ }
+    .links { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 400px; }
+    .link { display: block; padding: 16px; text-decoration: none; border-radius: 12px; text-align: center; transition: transform 0.2s; }
+    .link:hover { transform: translateY(-2px); }
   </style>
 </head>
 <body>
-  <div class="background-effects">
-    <!-- أضف عناصر خلفية ديكورية -->
-  </div>
-  
-  <div class="profile-container">
-    <div class="profile-header">
-      <img src="{{userImage}}" alt="Profile" class="profile-image">
-      <h1 class="profile-name">{{userName}}</h1>
-      <p class="profile-username">{{username}}</p>
-      <p class="profile-bio">{{userBio}}</p>
-    </div>
-    
+  <div class="container">
+    <img src="{{image}}" alt="Profile" class="profile-img">
+    <h1 class="name">{{name}}</h1>
+    <p class="username">{{username}}</p>
+    <p class="bio">{{bio}}</p>
     <div class="links">
-      {{userLinks}}
+      {{links}}
     </div>
-    
-    <footer class="footer">
-      <p>أنشئ صفحتك مع Link.iq ✨</p>
-    </footer>
+    <footer>أنشئ صفحتك مع Link.iq ✨</footer>
   </div>
-  
-  <script>
-    // JavaScript للتأثيرات التفاعلية
-  </script>
 </body>
 </html>
 
-⚠️ مهم جداً:
-1. {{userLinks}} placeholder واحد فقط - لا تكتب روابط وهمية!
-2. أضف animations وتأثيرات CSS جميلة حسب الثيم
-3. اجعل التصميم مميز ومختلف
-4. أرجع HTML فقط بدون أي شرح أو markdown!`
+المهم:
+- صمم حسب الثيم المطلوب (ألوان، خلفية، تأثيرات)
+- أضف animations وgradients جميلة
+- {{links}} placeholder واحد فقط!
+- أرجع HTML فقط!`
           }
         ]
       }),
@@ -131,59 +113,50 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    console.log('AI Response received');
-    
     let html = data.choices?.[0]?.message?.content || '';
     
-    // تنظيف الـ HTML (إزالة ```html إذا كان موجود)
+    console.log('Raw response length:', html.length);
+    
+    // تنظيف HTML
     html = html.replace(/```html\n?/gi, '').replace(/```\n?/g, '').trim();
     
-    // التأكد من أن الـ HTML يبدأ بـ <!DOCTYPE
-    if (!html.toLowerCase().startsWith('<!doctype')) {
-      const doctypeIndex = html.toLowerCase().indexOf('<!doctype');
-      if (doctypeIndex > -1) {
-        html = html.substring(doctypeIndex);
-      }
+    // البحث عن بداية HTML
+    const doctypeIndex = html.toLowerCase().indexOf('<!doctype');
+    if (doctypeIndex > 0) {
+      html = html.substring(doctypeIndex);
     }
-    
-    console.log('HTML before replacement (first 500 chars):', html.substring(0, 500));
     
     // إنشاء HTML للروابط
     const linksHtml = userData.links.map(link => 
-      `<a href="${link.url}" target="_blank" rel="noopener noreferrer" class="link-item">${link.title}</a>`
+      `<a href="${link.url}" target="_blank" rel="noopener noreferrer" class="link">${link.title}</a>`
     ).join('\n      ');
     
-    // استبدال placeholders بالبيانات الحقيقية
+    // استبدال placeholders
     html = html
+      .replace(/\{\{name\}\}/g, userData.name)
       .replace(/\{\{userName\}\}/g, userData.name)
       .replace(/\{\{username\}\}/g, userData.username)
+      .replace(/\{\{image\}\}/g, userData.image)
       .replace(/\{\{userImage\}\}/g, userData.image)
+      .replace(/\{\{bio\}\}/g, userData.bio)
       .replace(/\{\{userBio\}\}/g, userData.bio)
+      .replace(/\{\{links\}\}/g, linksHtml)
       .replace(/\{\{userLinks\}\}/g, linksHtml);
     
-    console.log('HTML after replacement generated successfully');
+    console.log('=== Theme Generated Successfully ===');
     console.log('Final HTML length:', html.length);
 
     return new Response(
       JSON.stringify({ html, success: true }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
-      }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error: unknown) {
-    console.error('Error in generate-theme-html:', error);
-    const errorMessage = error instanceof Error ? error.message : 'حدث خطأ في توليد الثيم';
+    console.error('Error:', error);
+    const msg = error instanceof Error ? error.message : 'حدث خطأ في توليد الثيم';
     return new Response(
-      JSON.stringify({ 
-        error: errorMessage,
-        success: false 
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500 
-      }
+      JSON.stringify({ error: msg, success: false }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );
   }
 });

@@ -269,20 +269,30 @@ export default function Dashboard() {
           transition={{ delay: 0.35 }}
           className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 backdrop-blur-lg border border-pink-500/30 rounded-2xl p-6 mb-8"
         >
-          <div className="flex items-center justify-between">
-            <Button
-              onClick={() => navigate("/ai-theme-generator")}
-              className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white rounded-xl px-8 py-6 gap-3 text-lg"
-            >
-              <Wand2 className="w-6 h-6" />
-              توليد ثيم بالذكاء الاصطناعي
-            </Button>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+              <Button
+                onClick={() => navigate("/theme-generator")}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl px-6 py-6 gap-3 text-lg"
+              >
+                <Sparkles className="w-6 h-6" />
+                🎨 مولد الثيمات HTML
+              </Button>
+              <Button
+                onClick={() => navigate("/ai-theme-generator")}
+                variant="outline"
+                className="border-pink-500/50 text-pink-300 hover:bg-pink-500/10 rounded-xl px-6 py-6 gap-3"
+              >
+                <Wand2 className="w-5 h-5" />
+                مولد الألوان
+              </Button>
+            </div>
             <div className="text-right">
               <div className="flex items-center gap-2 justify-end mb-2">
                 <Sparkles className="w-5 h-5 text-pink-400" />
                 <h2 className="text-2xl font-bold text-white">مولد الثيمات الذكي</h2>
               </div>
-              <p className="text-white/60">صف ما تريد، والذكاء الاصطناعي يصمم لك ثيماً مخصصاً</p>
+              <p className="text-white/60">صف ما تريد، والذكاء الاصطناعي يصمم لك صفحة كاملة!</p>
             </div>
           </div>
         </motion.div>
