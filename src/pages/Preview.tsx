@@ -1,11 +1,12 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { usePublicProfile } from "@/hooks/useProfile";
 import { usePublicLinks } from "@/hooks/useLinks";
 import { MusicPlayer } from "@/components/MusicPlayer";
-import { Link2, ExternalLink } from "lucide-react";
+import { Link2, ExternalLink, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 interface BlobItem {
   x: string;
@@ -112,6 +113,30 @@ export default function Preview() {
     return null;
   }, []);
 
+  // Load custom HTML theme from localStorage
+  const customHtmlTheme = useMemo(() => {
+    try {
+      const isActive = localStorage.getItem('custom_theme_active') === 'true';
+      const savedUsername = localStorage.getItem('custom_theme_username');
+      const savedHtml = localStorage.getItem('custom_theme_html');
+      
+      // تطبيق الثيم فقط على المستخدم الصحيح
+      if (isActive && savedHtml && savedUsername === username) {
+        return savedHtml;
+      }
+    } catch (e) {
+      console.error('Failed to load custom HTML theme:', e);
+    }
+    return null;
+  }, [username]);
+
+  const clearCustomHtmlTheme = useCallback(() => {
+    localStorage.removeItem('custom_theme_active');
+    localStorage.removeItem('custom_theme_html');
+    localStorage.removeItem('custom_theme_username');
+    window.location.reload();
+  }, []);
+
   useEffect(() => {
     if (profile?.theme) {
       document.documentElement.setAttribute("data-theme", profile.theme);
@@ -133,6 +158,28 @@ export default function Preview() {
     }
     window.open(link.url, "_blank", "noopener,noreferrer");
   };
+
+  // عرض الثيم HTML المخصص إذا كان موجوداً
+  if (customHtmlTheme) {
+    return (
+      <div className="min-h-screen relative">
+        <iframe
+          srcDoc={customHtmlTheme}
+          className="w-full min-h-screen border-0"
+          title="Custom Theme"
+          sandbox="allow-scripts allow-same-origin"
+          style={{ height: '100vh' }}
+        />
+        <Button
+          onClick={clearCustomHtmlTheme}
+          className="fixed bottom-4 left-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 z-50"
+        >
+          <X className="w-4 h-4" />
+          إلغاء الثيم المخصص
+        </Button>
+      </div>
+    );
+  }
 
   if (profileLoading || linksLoading) {
     return (

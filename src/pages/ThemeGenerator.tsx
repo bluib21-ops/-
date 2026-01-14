@@ -71,9 +71,10 @@ export default function ThemeGenerator() {
     
     setSaving(true);
     try {
-      // حفظ الثيم في localStorage مؤقتاً
+      // حفظ الثيم مع معلومات المستخدم
       localStorage.setItem('custom_theme_html', generatedHtml);
       localStorage.setItem('custom_theme_active', 'true');
+      localStorage.setItem('custom_theme_username', profile?.username || '');
       
       toast.success('تم حفظ الثيم بنجاح! 💾');
       
