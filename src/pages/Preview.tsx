@@ -7,6 +7,8 @@ import { MusicPlayer } from "@/components/MusicPlayer";
 import { Link2, ExternalLink, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { ThemeBackgroundEffect } from "@/components/ThemeBackgroundEffect";
+import { ThemeStyles } from "@/pages/ThemeGenerator";
 
 interface BlobItem {
   x: string;
@@ -100,7 +102,7 @@ export default function Preview() {
   const { data: profile, isLoading: profileLoading } = usePublicProfile(username || "");
   const { data: links = [], isLoading: linksLoading } = usePublicLinks(profile?.user_id || "");
   
-  // Load custom AI theme from localStorage
+  // Load custom AI theme from localStorage (old JSON format)
   const customTheme = useMemo<CustomTheme | null>(() => {
     try {
       const saved = localStorage.getItem("custom-ai-theme");
@@ -113,27 +115,29 @@ export default function Preview() {
     return null;
   }, []);
 
-  // Load custom HTML theme from localStorage
-  const customHtmlTheme = useMemo(() => {
+  // Load custom theme styles from localStorage (new format)
+  const customThemeStyles = useMemo<ThemeStyles | null>(() => {
     try {
       const isActive = localStorage.getItem('custom_theme_active') === 'true';
       const savedUsername = localStorage.getItem('custom_theme_username');
-      const savedHtml = localStorage.getItem('custom_theme_html');
+      const savedStyles = localStorage.getItem('custom_theme_styles');
       
       // تطبيق الثيم فقط على المستخدم الصحيح
-      if (isActive && savedHtml && savedUsername === username) {
-        return savedHtml;
+      if (isActive && savedStyles && savedUsername === username) {
+        return JSON.parse(savedStyles);
       }
     } catch (e) {
-      console.error('Failed to load custom HTML theme:', e);
+      console.error('Failed to load custom theme styles:', e);
     }
     return null;
   }, [username]);
 
-  const clearCustomHtmlTheme = useCallback(() => {
+  const clearCustomTheme = useCallback(() => {
     localStorage.removeItem('custom_theme_active');
-    localStorage.removeItem('custom_theme_html');
+    localStorage.removeItem('custom_theme_styles');
     localStorage.removeItem('custom_theme_username');
+    // Also clear old format
+    localStorage.removeItem('custom_theme_html');
     window.location.reload();
   }, []);
 
@@ -158,28 +162,6 @@ export default function Preview() {
     }
     window.open(link.url, "_blank", "noopener,noreferrer");
   };
-
-  // عرض الثيم HTML المخصص إذا كان موجوداً
-  if (customHtmlTheme) {
-    return (
-      <div className="min-h-screen relative">
-        <iframe
-          srcDoc={customHtmlTheme}
-          className="w-full min-h-screen border-0"
-          title="Custom Theme"
-          sandbox="allow-scripts allow-same-origin"
-          style={{ height: '100vh' }}
-        />
-        <Button
-          onClick={clearCustomHtmlTheme}
-          className="fixed bottom-4 left-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 z-50"
-        >
-          <X className="w-4 h-4" />
-          إلغاء الثيم المخصص
-        </Button>
-      </div>
-    );
-  }
 
   if (profileLoading || linksLoading) {
     return (
@@ -265,7 +247,181 @@ export default function Preview() {
     );
   }
 
-  // Extract theme effects
+  // عرض الثيم المخصص الجديد (ThemeStyles)
+  if (customThemeStyles) {
+    return (
+      <div 
+        className="min-h-screen relative"
+        style={{ background: customThemeStyles.colors.background }}
+      >
+        {/* تأثير الخلفية */}
+        <ThemeBackgroundEffect 
+          type={customThemeStyles.backgroundEffect.type}
+          css={customThemeStyles.backgroundEffect.css}
+          html={customThemeStyles.backgroundEffect.html}
+        />
+        
+        {/* المحتوى */}
+        <div className="relative z-10 py-12 px-6">
+          <div className="max-w-lg mx-auto">
+            {/* الصورة والمعلومات */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-8"
+            >
+              {profile.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt={profile.display_name || profile.username}
+                  className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
+                  style={{
+                    borderColor: customThemeStyles.profileImageStyle.borderColor,
+                    borderWidth: customThemeStyles.profileImageStyle.borderWidth,
+                    borderStyle: 'solid',
+                    boxShadow: customThemeStyles.profileImageStyle.shadow,
+                  }}
+                />
+              ) : (
+                <div 
+                  className="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center"
+                  style={{ 
+                    backgroundColor: customThemeStyles.colors.primary,
+                    boxShadow: customThemeStyles.profileImageStyle.shadow,
+                  }}
+                >
+                  <span className="text-4xl text-white">
+                    {(profile.display_name || profile.username)[0]?.toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <h1 
+                className="text-2xl font-bold"
+                style={{ 
+                  color: customThemeStyles.colors.text,
+                  fontFamily: customThemeStyles.fonts.heading
+                }}
+              >
+                {profile.display_name || profile.username}
+              </h1>
+              <p 
+                style={{ 
+                  color: customThemeStyles.colors.textSecondary,
+                  fontFamily: customThemeStyles.fonts.body
+                }}
+              >
+                @{profile.username}
+              </p>
+              {profile.bio && (
+                <p 
+                  className="mt-2"
+                  style={{ 
+                    color: customThemeStyles.colors.textSecondary,
+                    fontFamily: customThemeStyles.fonts.body
+                  }}
+                >
+                  {profile.bio}
+                </p>
+              )}
+            </motion.div>
+
+            {/* مشغل الموسيقى */}
+            {profile.theme_song_url && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="mb-6"
+              >
+                <MusicPlayer songUrl={profile.theme_song_url} />
+              </motion.div>
+            )}
+
+            {/* الروابط */}
+            <div className="space-y-4">
+              {links.length === 0 ? (
+                <div 
+                  className="p-8 text-center"
+                  style={{
+                    backgroundColor: customThemeStyles.colors.cardBg,
+                    borderRadius: customThemeStyles.cardStyle.borderRadius,
+                  }}
+                >
+                  <p style={{ color: customThemeStyles.colors.textSecondary }}>
+                    لا توجد روابط بعد
+                  </p>
+                </div>
+              ) : (
+                links.map((link, i) => (
+                  <motion.div
+                    key={link.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    whileHover={{ 
+                      transform: customThemeStyles.cardStyle.hoverEffect || 'scale(1.02)',
+                    }}
+                    className="flex items-center gap-4 p-4 cursor-pointer transition-all"
+                    style={{
+                      backgroundColor: customThemeStyles.colors.cardBg,
+                      borderColor: customThemeStyles.colors.cardBorder,
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                      borderRadius: customThemeStyles.cardStyle.borderRadius,
+                      boxShadow: customThemeStyles.cardStyle.shadow,
+                      backdropFilter: `blur(${customThemeStyles.cardStyle.backdropBlur})`,
+                    }}
+                    onClick={() => handleLinkClick(link)}
+                  >
+                    <span className="text-3xl">{link.icon}</span>
+                    <div className="flex-1 text-right">
+                      <h3 
+                        className="font-semibold"
+                        style={{ color: customThemeStyles.colors.text }}
+                      >
+                        {link.title}
+                      </h3>
+                    </div>
+                    <ExternalLink 
+                      className="w-5 h-5"
+                      style={{ color: customThemeStyles.colors.textSecondary }}
+                    />
+                  </motion.div>
+                ))
+              )}
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="mt-12 text-center"
+            >
+              <button
+                onClick={() => navigate("/")}
+                className="inline-flex items-center gap-2 transition-colors hover:opacity-80"
+                style={{ color: customThemeStyles.colors.textSecondary }}
+              >
+                <Link2 className="w-4 h-4" />
+                <span>أنشئ صفحتك مع Link.iq</span>
+              </button>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* زر إلغاء الثيم */}
+        <Button
+          onClick={clearCustomTheme}
+          className="fixed bottom-4 left-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 z-50"
+        >
+          <X className="w-4 h-4" />
+          إلغاء الثيم المخصص
+        </Button>
+      </div>
+    );
+  }
+
+  // Extract theme effects for old custom theme
   const hasBlobs = customTheme?.effects?.backgroundBlobs?.enabled && customTheme.effects.backgroundBlobs.blobs?.length > 0;
   const hasProfileGlow = customTheme?.effects?.profileGlow?.enabled;
   const hasAnimations = customTheme?.effects?.animations?.blobsMove;

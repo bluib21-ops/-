@@ -6,8 +6,41 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Sparkles, Save, Loader2, Eye, Wand2 } from 'lucide-react';
+import { ArrowLeft, Sparkles, Save, Loader2, Eye, Wand2, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
+import { ThemeBackgroundEffect } from '@/components/ThemeBackgroundEffect';
+
+export interface ThemeStyles {
+  colors: {
+    background: string;
+    text: string;
+    textSecondary: string;
+    primary: string;
+    cardBg: string;
+    cardBorder: string;
+  };
+  backgroundEffect: {
+    type: string;
+    css?: string;
+    html?: string;
+  };
+  cardStyle: {
+    borderRadius: string;
+    shadow: string;
+    backdropBlur: string;
+    hoverEffect?: string;
+  };
+  profileImageStyle: {
+    borderColor: string;
+    borderWidth: string;
+    shadow: string;
+    animation?: string;
+  };
+  fonts: {
+    heading: string;
+    body: string;
+  };
+}
 
 export default function ThemeGenerator() {
   const navigate = useNavigate();
@@ -16,7 +49,7 @@ export default function ThemeGenerator() {
   const { links } = useLinks();
   
   const [prompt, setPrompt] = useState('');
-  const [generatedHtml, setGeneratedHtml] = useState('');
+  const [generatedStyles, setGeneratedStyles] = useState<ThemeStyles | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -34,29 +67,17 @@ export default function ThemeGenerator() {
     setLoading(true);
     
     try {
-      // تجهيز بيانات المستخدم
-      const userData = {
-        name: profile.display_name || profile.username,
-        username: `@${profile.username}`,
-        image: profile.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400',
-        bio: profile.bio || '🚀 أهلاً بك في صفحتي',
-        links: links.filter(l => l.is_active).map(link => ({
-          title: `${link.icon || '🔗'} ${link.title}`,
-          url: link.url
-        }))
-      };
-
       const { data, error } = await supabase.functions.invoke('generate-theme-html', {
-        body: { prompt, userData }
+        body: { prompt }
       });
       
       if (error) throw error;
       
-      if (data?.html) {
-        setGeneratedHtml(data.html);
+      if (data?.styles) {
+        setGeneratedStyles(data.styles);
         toast.success('تم توليد الثيم بنجاح! 🎨');
       } else {
-        throw new Error('لم يتم استلام HTML');
+        throw new Error('لم يتم استلام الأنماط');
       }
     } catch (error) {
       console.error('Error generating theme:', error);
@@ -67,12 +88,12 @@ export default function ThemeGenerator() {
   };
 
   const saveTheme = async () => {
-    if (!generatedHtml) return;
+    if (!generatedStyles) return;
     
     setSaving(true);
     try {
       // حفظ الثيم مع معلومات المستخدم
-      localStorage.setItem('custom_theme_html', generatedHtml);
+      localStorage.setItem('custom_theme_styles', JSON.stringify(generatedStyles));
       localStorage.setItem('custom_theme_active', 'true');
       localStorage.setItem('custom_theme_username', profile?.username || '');
       
@@ -99,6 +120,15 @@ export default function ThemeGenerator() {
     { icon: '🎵', text: 'ثيم موسيقي مع تدرجات بنفسجية' },
   ];
 
+  // بيانات المعاينة
+  const previewData = {
+    name: profile?.display_name || profile?.username || 'اسم المستخدم',
+    username: `@${profile?.username || 'username'}`,
+    bio: profile?.bio || '🚀 أهلاً بك في صفحتي',
+    avatar: profile?.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400',
+    links: links?.filter(l => l.is_active) || []
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white">
       {/* Header */}
@@ -120,7 +150,7 @@ export default function ThemeGenerator() {
             </h1>
           </div>
           
-          <div className="w-24" /> {/* Spacer */}
+          <div className="w-24" />
         </div>
       </header>
 
@@ -132,9 +162,9 @@ export default function ThemeGenerator() {
           </div>
           <h2 className="text-4xl font-bold mb-4">🎨 مولد الثيمات بالذكاء الاصطناعي</h2>
           <p className="text-gray-300 text-lg max-w-2xl mx-auto">
-            اكتب وصف الثيم الذي تريده والذكاء الاصطناعي يصممه لك بالكامل!
+            اكتب وصف الثيم الذي تريده والذكاء الاصطناعي يغير الشكل فقط!
             <br />
-            <span className="text-purple-400">نفس بياناتك، شكل جديد تماماً</span>
+            <span className="text-purple-400">نفس بياناتك والروابط، تصميم جديد تماماً</span>
           </p>
         </div>
 
@@ -176,7 +206,7 @@ export default function ThemeGenerator() {
             {loading ? (
               <>
                 <Loader2 className="w-5 h-5 ml-2 animate-spin" />
-                جاري التوليد... (قد يستغرق 30 ثانية)
+                جاري التوليد... (قد يستغرق 15 ثانية)
               </>
             ) : (
               <>
@@ -187,8 +217,8 @@ export default function ThemeGenerator() {
           </Button>
         </div>
 
-        {/* Preview Section */}
-        {generatedHtml && (
+        {/* Preview Section - بنفس الـ Layout */}
+        {generatedStyles && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -209,19 +239,137 @@ export default function ThemeGenerator() {
               </Button>
             </div>
             
+            {/* معاينة مباشرة بنفس الـ Layout */}
             <div className="bg-gray-800/50 rounded-2xl p-4 border border-white/10">
-              <div className="bg-white rounded-xl overflow-hidden shadow-2xl">
-                <iframe
-                  srcDoc={generatedHtml}
-                  className="w-full h-[700px]"
-                  title="Theme Preview"
-                  sandbox="allow-scripts allow-same-origin"
-                />
+              <div 
+                className="rounded-xl overflow-hidden shadow-2xl relative min-h-[600px]"
+                style={{ background: generatedStyles.colors.background }}
+              >
+                {/* تأثير الخلفية */}
+                <div className="absolute inset-0 overflow-hidden">
+                  <ThemeBackgroundEffect 
+                    type={generatedStyles.backgroundEffect.type}
+                    css={generatedStyles.backgroundEffect.css}
+                    html={generatedStyles.backgroundEffect.html}
+                  />
+                </div>
+                
+                {/* المحتوى - نفس Layout صفحة Preview */}
+                <div className="relative z-10 py-12 px-6">
+                  <div className="max-w-lg mx-auto">
+                    {/* الصورة والمعلومات */}
+                    <div className="text-center mb-8">
+                      <img
+                        src={previewData.avatar}
+                        alt={previewData.name}
+                        className="w-24 h-24 rounded-full mx-auto mb-4 object-cover"
+                        style={{
+                          borderColor: generatedStyles.profileImageStyle.borderColor,
+                          borderWidth: generatedStyles.profileImageStyle.borderWidth,
+                          borderStyle: 'solid',
+                          boxShadow: generatedStyles.profileImageStyle.shadow,
+                        }}
+                      />
+                      <h1 
+                        className="text-2xl font-bold"
+                        style={{ 
+                          color: generatedStyles.colors.text,
+                          fontFamily: generatedStyles.fonts.heading
+                        }}
+                      >
+                        {previewData.name}
+                      </h1>
+                      <p 
+                        style={{ 
+                          color: generatedStyles.colors.textSecondary,
+                          fontFamily: generatedStyles.fonts.body
+                        }}
+                      >
+                        {previewData.username}
+                      </p>
+                      <p 
+                        className="mt-2"
+                        style={{ 
+                          color: generatedStyles.colors.textSecondary,
+                          fontFamily: generatedStyles.fonts.body
+                        }}
+                      >
+                        {previewData.bio}
+                      </p>
+                    </div>
+                    
+                    {/* الروابط */}
+                    <div className="space-y-4">
+                      {previewData.links.length === 0 ? (
+                        // روابط تجريبية للمعاينة
+                        ['📱 تويتر', '📸 انستغرام', '🎥 يوتيوب'].map((title, i) => (
+                          <div
+                            key={i}
+                            className="flex items-center gap-4 p-4 cursor-pointer transition-all"
+                            style={{
+                              backgroundColor: generatedStyles.colors.cardBg,
+                              borderColor: generatedStyles.colors.cardBorder,
+                              borderWidth: '1px',
+                              borderStyle: 'solid',
+                              borderRadius: generatedStyles.cardStyle.borderRadius,
+                              boxShadow: generatedStyles.cardStyle.shadow,
+                              backdropFilter: `blur(${generatedStyles.cardStyle.backdropBlur})`,
+                            }}
+                          >
+                            <span className="text-3xl">{title.split(' ')[0]}</span>
+                            <div className="flex-1 text-right">
+                              <h3 
+                                className="font-semibold"
+                                style={{ color: generatedStyles.colors.text }}
+                              >
+                                {title.split(' ')[1]}
+                              </h3>
+                            </div>
+                            <ExternalLink 
+                              className="w-5 h-5"
+                              style={{ color: generatedStyles.colors.textSecondary }}
+                            />
+                          </div>
+                        ))
+                      ) : (
+                        previewData.links.map((link) => (
+                          <div
+                            key={link.id}
+                            className="flex items-center gap-4 p-4 cursor-pointer transition-all"
+                            style={{
+                              backgroundColor: generatedStyles.colors.cardBg,
+                              borderColor: generatedStyles.colors.cardBorder,
+                              borderWidth: '1px',
+                              borderStyle: 'solid',
+                              borderRadius: generatedStyles.cardStyle.borderRadius,
+                              boxShadow: generatedStyles.cardStyle.shadow,
+                              backdropFilter: `blur(${generatedStyles.cardStyle.backdropBlur})`,
+                            }}
+                          >
+                            <span className="text-3xl">{link.icon || '🔗'}</span>
+                            <div className="flex-1 text-right">
+                              <h3 
+                                className="font-semibold"
+                                style={{ color: generatedStyles.colors.text }}
+                              >
+                                {link.title}
+                              </h3>
+                            </div>
+                            <ExternalLink 
+                              className="w-5 h-5"
+                              style={{ color: generatedStyles.colors.textSecondary }}
+                            />
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             
             <p className="text-center text-gray-400 text-sm">
-              👆 هذا هو شكل صفحتك بالثيم الجديد - نفس بياناتك بتصميم مختلف تماماً!
+              👆 هذا هو شكل صفحتك بالثيم الجديد - نفس الـ Layout، شكل مختلف!
             </p>
           </div>
         )}
