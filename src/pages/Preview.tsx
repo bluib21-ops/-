@@ -153,10 +153,7 @@ export default function Preview() {
 
   const handleLinkClick = async (link: { id: string; url: string }) => {
     try {
-      await supabase
-        .from("links")
-        .update({ click_count: (links.find(l => l.id === link.id)?.click_count || 0) + 1 })
-        .eq("id", link.id);
+      await supabase.rpc('increment_link_clicks', { link_id: link.id });
     } catch (e) {
       console.error("Failed to track click:", e);
     }
